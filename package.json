@@ -1,0 +1,23 @@
+{
+  "name": "lafaillealizee_6_15012022",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlizeeLfe/LafailleAlizee_6_15012022.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlizeeLfe/LafailleAlizee_6_15012022/issues"
+  },
+  "homepage": "https://github.com/AlizeeLfe/LafailleAlizee_6_15012022#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.2"
+  }
+}
