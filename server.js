@@ -1,6 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 
+// Init .env config
+require('dotenv').config();
+
 const app = express();
 
 var corsOptions = {
@@ -19,6 +22,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to piquante application" });
 });
+
+const db = require("./config/db.config");
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
