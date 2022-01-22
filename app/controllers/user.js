@@ -4,6 +4,7 @@
 const bcrypt = require('bcrypt');
 // Importation de notre modèle user (on va enregistrer et lire des user dans ces middleware)
 const User = require('../models/user');
+const jwt = require('jsonwebtoken');
 
 //LOGIQUE SIGNUP = CREATION DE NOUVEAUX UTILISATEURS//
 // Utilisation de middleware pour la création de nouveaux utilisateurs dans la base de données
