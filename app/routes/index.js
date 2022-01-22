@@ -8,4 +8,5 @@ const userRoutes = require("./user");
 // Enregistrer les routes user (racine de tout ce qui ets lié à l'authentification, passe les routes)
 router.use("/api/auth", userRoutes);
 
-module.exports = router
+// On réexporte le routeur de ce fichier
+module.exports = router;
