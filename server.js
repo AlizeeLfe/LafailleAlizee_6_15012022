@@ -33,12 +33,12 @@ app.use(express.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
-// simple route
+// simple route (ENCORE UTILE ?)
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to piquante application" });
 });
 
-// Enregistrer le routeur dans l'application
+// Enregistrer le routeur dans l'application ?
 app.use(routes);
 // Enregistrer les routes user (racine de tout ce qui ets lié à l'authentification, passe les routes)
 app.use("/api/auth", userRoutes);
