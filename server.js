@@ -41,7 +41,7 @@ app.get("/", (req, res) => {
 // Enregistrer le routeur dans l'application ?
 app.use(routes);
 // Enregistrer les routes user (racine de tout ce qui ets lié à l'authentification, passe les routes)
-app.use("/api/auth", userRoutes);
+app.use("/api/auth", routes);
 
 const db = require("./config/db.config");
 
