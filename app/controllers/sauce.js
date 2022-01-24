@@ -2,7 +2,7 @@
 //Exporte des méthodes qui sont ensuite attribuées aux routes pour améliorer la maintenabilité de l'application
 
 // Importation du modèle "sauce"
-const Thing = require("../models/sauce");
+const sauce = require("../models/sauce");
 
 // ... récupérer une seule sauce
 exports.getOneSauce = (req, res, next) => {
