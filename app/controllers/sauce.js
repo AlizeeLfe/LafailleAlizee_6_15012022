@@ -40,3 +40,7 @@ exports.createSauce = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
+//...Liker et disliker une sauce
+exports.likeAndDislikeSauce = (req,res,next) => {
+  
+}

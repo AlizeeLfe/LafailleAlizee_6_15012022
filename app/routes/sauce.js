@@ -20,7 +20,8 @@ router.get("/", auth, sauceCtrl.getAllSauces);
 router.get("/:id", auth, sauceCtrl.getOneSauce);
 // Création d'une sauce (fonction "createSauce" qui est importée et appliquée à la route)
 router.post("/", auth, multer, sauceCtrl.createSauce);
-
+// Liker et Disliker la sauce 
+router.post("/:id/like", auth, sauceCtrl.likeAndDislikeSauce)
 
 
 // On réexporte le routeur de ce fichier
