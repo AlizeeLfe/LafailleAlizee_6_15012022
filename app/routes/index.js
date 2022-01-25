@@ -15,7 +15,7 @@ router.use("/api/auth", userRoutes);
 // La logique CRUD de sauce.js est importée et appliquée à la même route
 // = enregistrer notre routeur pour toutes les demandes effectuées vers /api/sauce
 // = (enregistrer le routeur dans l'application)
-router.use("/api/sauce", sauceRoutes);
+router.use("/api/sauces", sauceRoutes);
 
 // On réexporte le routeur de ce fichier
 module.exports = router;
