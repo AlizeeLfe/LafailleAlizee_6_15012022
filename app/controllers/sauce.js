@@ -2,7 +2,7 @@
 //Exporte des méthodes qui sont ensuite attribuées aux routes pour améliorer la maintenabilité de l'application
 
 // Importation du modèle "sauce"
-const sauce = require("../models/sauce");
+const Sauce = require("../models/sauce");
 
 // Exportation d'une fonction pour ....
 //...Récupérer une seule sauce
@@ -21,6 +21,18 @@ exports.getAllSauces = (req, res, next) => {
 
 //...Créer une sauce
 exports.createSauce = (req, res, next) => {
+  if (!req.file) {
+    return res.status(422).json({
+      message: "Your request does not contain an image.",
+    });
+  }
+
+  // Check if request contain text
+  if (!req.body) {
+    return res.status(422).json({
+      message: "Your request does not contain text.",
+    });
+  }
   // Analyse de la chaine de caratère et extraction de l'objet Json de "sauce" utilisable
   const sauceObject = JSON.parse(req.body.sauce);
   delete sauceObject._id;
@@ -28,11 +40,7 @@ exports.createSauce = (req, res, next) => {
   const sauce = new Sauce({
     ...sauceObject,
     // Générer l'url de l'image: protocol + :// + host du serveur + /images/ + nom du fichier
-    imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
-    likes: 0,
-    dislikes: 0,
-    usersLiked: [],
-    usersDisliked: [],
+    imageUrl: `/images/${req.file.filename}`,
   });
   sauce
     .save()
