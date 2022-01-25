@@ -14,6 +14,8 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Ce middleware intercepte toutes les requêtes qui contiennent du Json
+// et nous met à disposition ce contenu (corps de la requête) sur l'objet requête dans req.body
 // parse requests of content-type - application/json
 app.use(express.json());
 
@@ -25,15 +27,14 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to piquante application" });
 });
 
+
 // Enregistrer le routeur dans l'application 
 app.use(routes);
-// Enregistrer les routes user (racine de tout ce qui ets lié à l'authentification, passe les routes)
-app.use("/api/auth", routes);
 
 const db = require("./config/db.config");
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });

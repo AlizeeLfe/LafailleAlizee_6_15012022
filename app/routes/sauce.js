@@ -10,12 +10,18 @@ const router = express.Router();
 const sauceCtrl = require("../controllers/sauce");
 // Importation du Middleware d'authentification
 const auth = require("../middleware/auth");
+// Importation du Middleware pour gérer les fichiers entrants
+const multer = require("../middleware/multer-config");
 
 // (On a protégé les routes en passant le middleware d'authentification avant le contrôleur)
 // Afficher toutes les sauces
 router.get("/", auth, sauceCtrl.getAllSauces);
 // Afficher une sauce
 router.get("/:id", auth, sauceCtrl.getOneSauce);
+// Création d'une sauce (fonction "createSauce" qui est importée et appliquée à la route)
+router.post("/", auth, multer, sauceCtrl.createSauce);
+
+
 
 // On réexporte le routeur de ce fichier
 module.exports = router;

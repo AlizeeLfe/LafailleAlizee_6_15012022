@@ -1,3 +1,6 @@
+//**************IMPLEMENTATION DES ROUTES CRUD DE L'API DANS L'APPLICATION EXPRESS*************
+//*******************GESTION DE TOUTES LES REQUÊTES ENVOYEES AU SERVEUR ***********************
+
 // On a besoin d'Express....
 const express = require('express');
 //... pour créer un routeur
