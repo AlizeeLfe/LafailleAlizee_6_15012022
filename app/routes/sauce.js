@@ -8,6 +8,8 @@ const router = express.Router();
 
 // Importation du controller sauce
 const sauceCtrl = require("../controllers/sauce");
+// Importation du controller like
+const likeCtrl = require("../controllers/like");
 // Importation du Middleware d'authentification
 const auth = require("../middleware/auth");
 // Importation du Middleware pour gérer les fichiers entrants
@@ -21,7 +23,7 @@ router.get("/:id", auth, sauceCtrl.getOneSauce);
 // Création d'une sauce (fonction "createSauce" qui est importée et appliquée à la route)
 router.post("/", auth, multer, sauceCtrl.createSauce);
 // Liker et Disliker la sauce 
-router.post("/:id/like", auth, sauceCtrl.likeAndDislikeSauce)
+router.post("/:id/like", auth, likeCtrl.likeAndDislikeSauce);
 
 
 // On réexporte le routeur de ce fichier

@@ -7,7 +7,7 @@ const Sauce = require("../models/sauce");
 // Exportation d'une fonction pour ....
 //...Récupérer une seule sauce
 exports.getOneSauce = (req, res, next) => {
-  Sauce.findOne({ _id: req.params.id })
+  Sauce.findOne({ _id: req.params.id,})
     .then((sauce) => res.status(200).json(sauce))
     .catch((error) => res.status(404).json({ error }));
 };
@@ -26,7 +26,6 @@ exports.createSauce = (req, res, next) => {
       message: "Your request does not contain an image.",
     });
   }
-
   // Check if request contain text
   if (!req.body) {
     return res.status(422).json({
@@ -39,7 +38,6 @@ exports.createSauce = (req, res, next) => {
   // Pas besoin de Id car "new" de Mongoose va créer par défaut un champ Id
   const sauce = new Sauce({
     ...sauceObject,
-    // Générer l'url de l'image: protocol + :// + host du serveur + /images/ + nom du fichier
     imageUrl: `/images/${req.file.filename}`,
   });
   sauce
@@ -48,7 +46,4 @@ exports.createSauce = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
-//...Liker et disliker une sauce
-exports.likeAndDislikeSauce = (req,res,next) => {
-  
-}
+
