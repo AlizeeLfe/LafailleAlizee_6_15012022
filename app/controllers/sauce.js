@@ -2,7 +2,6 @@
 //Exporte des méthodes qui sont ensuite attribuées aux routes pour améliorer la maintenabilité de l'application
 
 // Importation du modèle "sauce"
-const sauce = require("../models/sauce");
 const Sauce = require("../models/sauce");
 
 // Exportation d'une fonction pour ....
@@ -56,5 +55,4 @@ exports.createSauce = (req, res, next) => {
     .then(() => res.status(201).json({ message: "Sauce enregistrée !" }))
     .catch((error) => res.status(400).json({ error }));
 };
-
 
