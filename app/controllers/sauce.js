@@ -2,20 +2,31 @@
 //Exporte des méthodes qui sont ensuite attribuées aux routes pour améliorer la maintenabilité de l'application
 
 // Importation du modèle "sauce"
+const sauce = require("../models/sauce");
 const Sauce = require("../models/sauce");
 
 // Exportation d'une fonction pour ....
 //...Récupérer une seule sauce
 exports.getOneSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id,})
-    .then((sauce) => res.status(200).json(sauce))
+    .then((sauce) => {
+      sauce.imageUrl = `${req.protocol}://${req.get('host')}` +  sauce.imageUrl
+      res.status(200).json(sauce)
+    })
+
     .catch((error) => res.status(404).json({ error }));
 };
 
 //...Récupérer toutes les sauces
 exports.getAllSauces = (req, res, next) => {
   Sauce.find()
-    .then((sauces) => res.status(200).json(sauces))
+    .then((sauces) => {
+      sauces = sauces.map((sauce) => {
+        sauce.imageUrl = `${req.protocol}://${req.get('host')}` +  sauce.imageUrl
+        return sauce
+      })
+      res.status(200).json(sauces)
+    })
     .catch((error) => res.status(400).json({ error }));
 };
 

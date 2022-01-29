@@ -1,45 +1,45 @@
 // Importation du model sauce
-const sauce = require("../models/sauce");
+const Sauce = require("../models/sauce");
 
 //...Liker et disliker une sauce
 exports.likeAndDislikeSauce = (req, res, next) => {
-  // Affichage du req.body
-  console.log("Contenu req.body ctrl like");
-  console.log(req.body.like);
-
-  // Récupérer l'iD dans l'url de la requête
-  console.log(req.params);
-
-  // Mise au format de l'id pour pouvoir aller chercher l'objet corrspondant dans la base de données
-  console.log({ _id: req.params.id });
 
   // Aller chercher l'objet dans la base de sonnées
-  sauce
+  Sauce
     .findOne({ _id: req.params.id })
     .then((sauce) => {
       // Like = 1 (like = +1)
       // utilisation includes(), opérateur $inc, $push, $pull (mongodb)
+        console.log(sauce);
 
       switch (req.body.like) {
         case 1:
           // Si le userliked est fasle et si like ==== 1
           if (
-            !sauce.usersLiked.includes(req.body.userId) &&
-            req.body.like === 1
+            !sauce.usersLiked.includes(req.body.userId)
           ) {
-            console.log(
-              "userid n'est pas dans userliked bdd et requete front like a 1"
-            );
+              // Enlever le dislike si il like (splice retirer element du tableau)
+              if (sauce.usersDisliked.includes(req.body.userId)) {
+                sauce.usersDisliked.splice(sauce.usersDisliked.indexOf(req.body.userId),1)
+              }
+
+          
+              
+              console.log(sauce);
             // mise à jour objet bdd
-            sauce
+            Sauce
               .updateOne(
-                { _id: req.params.id },
+                { _id: req.params.id }, sauce,
                 {
                   $inc: { likes: 1 },
                   $push: { usersLiked: req.body.userId },
                 }
+                ,
+                {
+                 upsert : true   
+                }
               )
-              .then(() => res.status(201).json({ message: "sauce like + 1" }))
+              .then((result) => res.status(201).json(result))
               .catch((error) => res.status(400).json({ error }));
           }
           break;
@@ -52,7 +52,7 @@ exports.likeAndDislikeSauce = (req, res, next) => {
           ) {
             console.log("userId est dans userDisliked bdd et dislikes a 1");
             // mise à jour objet bdd
-            sauce
+            Sauce
               .updateOne(
                 { _id: req.params.id },
                 {
@@ -72,7 +72,7 @@ exports.likeAndDislikeSauce = (req, res, next) => {
           if (sauce.usersLiked.includes(req.body.userId)) {
             console.log("userid est pas dans userliked bdd et case = 0");
             // mise à jour objet bdd
-            sauce
+            Sauce
               .updateOne(
                 { _id: req.params.id },
                 {
@@ -97,7 +97,7 @@ exports.likeAndDislikeSauce = (req, res, next) => {
                 }
               )
               .then(() => res.status(201).json({ message: "sauce dislike 0" }))
-              .catch((error) => res.status(400).json({ error }))
+              .catch((error) => res.status(400).json({ error }));
           }
           break;
       }
