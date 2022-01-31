@@ -3,22 +3,16 @@ const Sauce = require("../models/sauce");
 
 //...Liker et disliker une sauce
 exports.likeAndDislikeSauce = (req, res, next) => {
-  console.log(req.body.like);
-
   // Aller chercher l'objet dans la base de données (méthode findOne)
   //(req.params pour récupérer l'id de la sauce dans la requête et attribuer cette valeur à la key _id)
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
-      console.log("contenu result promise : sauce");
-      console.log(sauce);
-
       // Switch case
       switch (req.body.like) {
         // AJOUTER UN LIKE (like +1)
         case 1:
           if (
-            !sauce.usersLiked.includes(req.body.userId) &&
-            req.body.like === 1 && !sauce.usersDisliked.includes(req.body.userId)
+            !sauce.usersLiked.includes(req.body.userId) && !sauce.usersDisliked.includes(req.body.userId)
           ) {
             // Mise à jour sauce dans la base de données
             Sauce.updateOne(
@@ -39,8 +33,7 @@ exports.likeAndDislikeSauce = (req, res, next) => {
         // AJOUTER UN DISLIKE (dislike +1)
         case -1:
           if (
-            !sauce.usersDisliked.includes(req.body.userId) &&
-            req.body.like === -1 && !sauce.usersLiked.includes(req.body.userId)
+            !sauce.usersDisliked.includes(req.body.userId) && !sauce.usersLiked.includes(req.body.userId)
           ) {
             Sauce.updateOne(
               { _id: req.params.id },
