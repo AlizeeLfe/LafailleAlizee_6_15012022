@@ -11,9 +11,8 @@ exports.likeAndDislikeSauce = (req, res, next) => {
       switch (req.body.like) {
         // AJOUTER UN LIKE (like +1)
         case 1:
-          if (
-            !sauce.usersLiked.includes(req.body.userId) && !sauce.usersDisliked.includes(req.body.userId)
-          ) {
+
+          if (!sauce.usersLiked.includes(req.body.userId)) {
             // Mise à jour sauce dans la base de données
             Sauce.updateOne(
               // Chercher la sauce dans la base de données
@@ -28,13 +27,27 @@ exports.likeAndDislikeSauce = (req, res, next) => {
               .then(() => res.status(201).json({ message: "Sauce like +1" }))
               .catch((error) => res.status(400).json({ error }));
           }
+
+          // ENLEVER DISLIKE
+          if (sauce.usersDisliked.includes(req.body.userId)) {
+            Sauce.updateOne(
+              { _id: req.params.id },
+              {
+                $inc: { dislikes: -1 },
+                $pull: { usersDisliked: req.body.userId },
+              }
+            )
+              .then(() => res.status(201).json({ message: "Sauce dislike 0" }))
+              .catch((error) => res.status(400).json({ error }));
+          }
+
+          
           break;
 
         // AJOUTER UN DISLIKE (dislike +1)
         case -1:
-          if (
-            !sauce.usersDisliked.includes(req.body.userId) && !sauce.usersLiked.includes(req.body.userId)
-          ) {
+
+          if (!sauce.usersDisliked.includes(req.body.userId)) {
             Sauce.updateOne(
               { _id: req.params.id },
               {
@@ -45,10 +58,8 @@ exports.likeAndDislikeSauce = (req, res, next) => {
               .then(() => res.status(201).json({ message: "Sauce dislike +1" }))
               .catch((error) => res.status(400).json({ error }));
           }
-          break;
 
-        case 0:
-          // ENLEVER UN LIKE (like = 0 en rappuyant sur le like)
+          // ENLEVER UN LIKE 
           if (sauce.usersLiked.includes(req.body.userId)) {
             Sauce.updateOne(
               { _id: req.params.id },
@@ -60,7 +71,24 @@ exports.likeAndDislikeSauce = (req, res, next) => {
               .then(() => res.status(201).json({ message: "Sauce like 0" }))
               .catch((error) => res.status(400).json({ error }));
           }
-          // ENLEVER UN DISLIKE (dislike = 0 en rappuyant sur le dislike)
+  
+
+          break;
+
+        case 0:
+          // ENLEVER UN LIKE (like et dislike = 0)
+          if (sauce.usersLiked.includes(req.body.userId)) {
+            Sauce.updateOne(
+              { _id: req.params.id },
+              {
+                $inc: { likes: -1 },
+                $pull: { usersLiked: req.body.userId },
+              }
+            )
+              .then(() => res.status(201).json({ message: "Sauce like 0" }))
+              .catch((error) => res.status(400).json({ error }));
+          }
+          // ENLEVER UN DISLIKE (like et dislike = 0)
           if (sauce.usersDisliked.includes(req.body.userId)) {
             Sauce.updateOne(
               { _id: req.params.id },
