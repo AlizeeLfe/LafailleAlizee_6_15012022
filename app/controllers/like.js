@@ -7,21 +7,23 @@ exports.likeAndDislikeSauce = (req, res, next) => {
   //(req.params pour récupérer l'id de la sauce dans la requête et attribuer cette valeur à la key _id)
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
-      // Switch case
+      // Début switch case
       switch (req.body.like) {
         // AJOUTER UN LIKE (like +1)
         case 1:
+          // Définir un cas par défaut
           let toChange = {
+            // Incrementation de 1 dans le champ "likes"
             $inc: { likes: 1 },
-            // Ajouter le userId dans le tableau des usersLiked
+            // Ajouter le userId dans le tableau des "usersLiked"
             $push: { usersLiked: req.body.userId },
           };
-
+          // Si il n'y a pas de like mais un dislike, alors on change le comportement de "to change" pour retirer également le dislike
           if (!sauce.usersLiked.includes(req.body.userId)) {
             if (sauce.usersDisliked.includes(req.body.userId)) {
               toChange = {
                 $inc: { dislikes: -1, likes: 1 },
-                // Ajouter le userId dans le tableau des usersLiked
+                // Ajouter le userId dans le tableau des "usersLiked" et retirer le userId du tableau des "usersDislikes"
                 $pull: { usersDisliked: req.body.userId },
                 $push: { usersLiked: req.body.userId },
               };
@@ -32,10 +34,11 @@ exports.likeAndDislikeSauce = (req, res, next) => {
               { _id: req.params.id },
               toChange
             )
-              .then(() => res.status(201).json({ message: "Sauce like +1" }))
+              .then(() =>
+                res.status(201).json({ message: "User like completed" })
+              )
               .catch((error) => res.status(400).json({ error }));
           }
-
           break;
 
         // AJOUTER UN DISLIKE (dislike +1)
@@ -61,7 +64,9 @@ exports.likeAndDislikeSauce = (req, res, next) => {
               { _id: req.params.id },
               toChangeDislike
             )
-              .then(() => res.status(201).json({ message: "Sauce like +1" }))
+              .then(() =>
+                res.status(201).json({ message: "User dislike completed" })
+              )
               .catch((error) => res.status(400).json({ error }));
           }
           break;
@@ -76,7 +81,9 @@ exports.likeAndDislikeSauce = (req, res, next) => {
                 $pull: { usersLiked: req.body.userId },
               }
             )
-              .then(() => res.status(201).json({ message: "Sauce like 0" }))
+              .then(() =>
+                res.status(201).json({ message: "Like and dislike removed" })
+              )
               .catch((error) => res.status(400).json({ error }));
           }
 
@@ -89,7 +96,9 @@ exports.likeAndDislikeSauce = (req, res, next) => {
                 $pull: { usersDisliked: req.body.userId },
               }
             )
-              .then(() => res.status(201).json({ message: "Sauce dislike 0" }))
+              .then(() =>
+                res.status(201).json({ message: "Like and dislike removed" })
+              )
               .catch((error) => res.status(400).json({ error }));
           }
           break;
