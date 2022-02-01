@@ -1,6 +1,9 @@
 const express = require("express");
 const cors = require("cors");
+// Accéder au path de notre serveur (pour pouvoir avoir accès au chemin de notre système de fichier)
+const path = require('path');
 const routes = require("./app/routes");
+
 
 // Init .env config
 require("dotenv").config();
@@ -14,6 +17,8 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Ce middleware intercepte toutes les requêtes qui contiennent du Json
+// et nous met à disposition ce contenu (corps de la requête) sur l'objet requête dans req.body
 // parse requests of content-type - application/json
 app.use(express.json());
 
@@ -25,15 +30,19 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to piquante application" });
 });
 
+
+
 // Enregistrer le routeur dans l'application 
 app.use(routes);
-// Enregistrer les routes user (racine de tout ce qui ets lié à l'authentification, passe les routes)
-app.use("/api/auth", routes);
 
+// Création d'un Middleware pour dire à Express de servir le dossier statique "images" pour les requêtes /images
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
+// Why must be here ?
 const db = require("./config/db.config");
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
