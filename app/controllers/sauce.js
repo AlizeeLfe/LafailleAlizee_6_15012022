@@ -56,3 +56,24 @@ exports.createSauce = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
+//...Modifier une sauce
+exports.modifySauce = (req, res, next) => {
+    // 2 cas a prendre en compte :
+    // CAS 1 : Si on ajoute une nouvelle image on aura un "req.file"
+    // on récupère le chaine de caractère (toutes les infos sur la sauce), on la parse en objet, et on modifie l'image url (car nouvelle image)
+    // CAS 2 : Pas d'image à modifier, on fait une copie du corps de la requête "req.body"
+    const sauceObject = req.file ?
+       {   // On récupère la chaine de caractères, on la parse en Object JS
+          ...JSON.parse(req.body.sauce),
+          // Modification de l'image URL
+          imageUrl: `/images/${req.file.filename}`,
+        } : { ...req.body };
+    // On prend la sauce qu'on a créé, et on modifie son identifiant, pour correspondre à l'identifiant des paramètres de requête
+    Sauce.updateOne(
+      { _id: req.params.id },
+      { ...sauceObject, _id: req.params.id }
+    )
+      .then(() => res.status(200).json({ message: "Sauce modified !" }))
+      .catch((error) => res.status(400).json({ error }));
+};
+

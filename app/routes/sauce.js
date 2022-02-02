@@ -24,6 +24,8 @@ router.get("/:id", auth, sauceCtrl.getOneSauce);
 router.post("/", auth, multer, sauceCtrl.createSauce);
 // Liker et Disliker la sauce 
 router.post("/:id/like", auth, likeCtrl.likeAndDislikeSauce);
+// Modifier une sauce
+router.put("/:id", auth, multer, sauceCtrl.modifySauce);
 
 
 // On réexporte le routeur de ce fichier
