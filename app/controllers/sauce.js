@@ -3,16 +3,17 @@
 
 // Importation du modèle "sauce"
 const Sauce = require("../models/sauce");
+// Importation du package "file system" de node (Donne accès aux fonctions qui permet de modifier/ supprimer le système de fichiers)
+const fs = require("fs");
 
 // Exportation d'une fonction pour ....
 //...Récupérer une seule sauce
 exports.getOneSauce = (req, res, next) => {
-  Sauce.findOne({ _id: req.params.id,})
+  Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
-      sauce.imageUrl = `${req.protocol}://${req.get('host')}` +  sauce.imageUrl
-      res.status(200).json(sauce)
+      sauce.imageUrl = `${req.protocol}://${req.get("host")}` + sauce.imageUrl;
+      res.status(200).json(sauce);
     })
-
     .catch((error) => res.status(404).json({ error }));
 };
 
@@ -21,10 +22,11 @@ exports.getAllSauces = (req, res, next) => {
   Sauce.find()
     .then((sauces) => {
       sauces = sauces.map((sauce) => {
-        sauce.imageUrl = `${req.protocol}://${req.get('host')}` +  sauce.imageUrl
-        return sauce
-      })
-      res.status(200).json(sauces)
+        sauce.imageUrl =
+          `${req.protocol}://${req.get("host")}` + sauce.imageUrl;
+        return sauce;
+      });
+      res.status(200).json(sauces);
     })
     .catch((error) => res.status(400).json({ error }));
 };
@@ -58,22 +60,52 @@ exports.createSauce = (req, res, next) => {
 
 //...Modifier une sauce
 exports.modifySauce = (req, res, next) => {
-    // 2 cas a prendre en compte :
-    // CAS 1 : Si on ajoute une nouvelle image on aura un "req.file"
-    // on récupère le chaine de caractère (toutes les infos sur la sauce), on la parse en objet, et on modifie l'image url (car nouvelle image)
-    // CAS 2 : Pas d'image à modifier, on fait une copie du corps de la requête "req.body"
-    const sauceObject = req.file ?
-       {   // On récupère la chaine de caractères, on la parse en Object JS
-          ...JSON.parse(req.body.sauce),
-          // Modification de l'image URL
-          imageUrl: `/images/${req.file.filename}`,
-        } : { ...req.body };
-    // On prend la sauce qu'on a créé, et on modifie son identifiant, pour correspondre à l'identifiant des paramètres de requête
-    Sauce.updateOne(
-      { _id: req.params.id },
-      { ...sauceObject, _id: req.params.id }
-    )
-      .then(() => res.status(200).json({ message: "Sauce modified !" }))
-      .catch((error) => res.status(400).json({ error }));
+  // 2 cas a prendre en compte :
+  // CAS 1 : Si on ajoute une nouvelle image on aura un "req.file"
+  // on récupère le chaine de caractère (toutes les infos sur la sauce), on la parse en objet, et on modifie l'image url (car nouvelle image)
+  // CAS 2 : Pas d'image à modifier, on fait une copie du corps de la requête "req.body"
+  const sauceObject = req.file
+    ? {
+        // On récupère la chaine de caractères, on la parse en Object JS
+        ...JSON.parse(req.body.sauce),
+        // Modification de l'image URL
+        imageUrl: `/images/${req.file.filename}`,
+      }
+    : { ...req.body };
+  // On prend la sauce qu'on a créé, et on modifie son identifiant, pour correspondre à l'identifiant des paramètres de requête
+  Sauce.updateOne(
+    { _id: req.params.id },
+    { ...sauceObject, _id: req.params.id }
+  )
+    .then(() => res.status(200).json({ message: "Sauce modified !" }))
+    .catch((error) => res.status(400).json({ error }));
 };
 
+//...Supprimer une sauce
+exports.deleteSauce = (req, res, next) => {
+  // Chercher la sauce
+  Sauce.findOne({ _id: req.params.id }).then((sauce) => {
+    // si la sauce n'existe pas : erreur
+    if (!sauce) {
+      res.status(404).json({
+        error: new Error("No such sauce"),
+      });
+    }
+    // Vérifier qu'uniquement la personne à qui appartient l'objet puisse le supprimer
+    if (sauce.userId !== req.auth.userId) {
+      res.status(401).json({
+        error: new Error("Unauthorized request!"),
+      });
+    }
+    // Extraire le fichier
+    // Récupérer l'image url de la base et split avant et apres "/images/" et récupérer le 2ème élément du tableau : le nom du fichier
+    const filename = sauce.imageUrl.split("/images/")[1];
+    // Fonction du package fs pour supprimer un fchier (unlink)
+    fs.unlink(`images/${filename}`, () => {
+      // Supprimer la sauce de la base de données
+      Sauce.deleteOne({ _id: req.params.id })
+        .then(() => res.status(200).json({ message: "Sauce removed" }))
+        .catch((error) => res.status(400).json({ error }));
+    });
+  });
+};

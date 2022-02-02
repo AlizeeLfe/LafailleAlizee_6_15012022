@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 // Création d'un schéma de données (informations requises)
 const sauceSchema = mongoose.Schema({
   userId: { type: String, ref: "User", required: true },
-  name: { type: String, lowercase: true, trim: true, minlength: 2, maxlength: 20, required: true },
+  name: { type: String, trim: true, minlength: 2, maxlength: 20, required: true },
   manufacturer: { type: String, lowercase: true, trim: true, minlength: 2, required: true },
   description: { type: String, lowercase: true, trim: true, minlength: 2, required: true },
   mainPepper: { type: String, lowercase: true, trim: true, minlength: 2, maxlength: 20, required: true },
