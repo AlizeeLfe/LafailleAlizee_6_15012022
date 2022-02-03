@@ -26,6 +26,8 @@ router.post("/", auth, multer, sauceCtrl.createSauce);
 router.post("/:id/like", auth, likeCtrl.likeAndDislikeSauce);
 // Modifier une sauce
 router.put("/:id", auth, multer, sauceCtrl.modifySauce);
+// Supprimer une sauce
+router.delete("/:id", auth, sauceCtrl.deleteSauce);
 
 
 // On réexporte le routeur de ce fichier
