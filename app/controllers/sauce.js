@@ -100,7 +100,7 @@ exports.deleteSauce = (req, res, next) => {
     // Extraire le fichier
     // Récupérer l'image url de la base et split avant et apres "/images/" et récupérer le 2ème élément du tableau : le nom du fichier
     const filename = sauce.imageUrl.split("/images/")[1];
-    // Fonction du package fs pour supprimer un fchier (unlink)
+    // Fonction du package fs pour supprimer un fichier (unlink)
     fs.unlink(`images/${filename}`, () => {
       // Supprimer la sauce de la base de données
       Sauce.deleteOne({ _id: req.params.id })
