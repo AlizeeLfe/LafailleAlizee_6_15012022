@@ -10,6 +10,8 @@ const uniqueValidator = require("mongoose-unique-validator");
 const userSchema = mongoose.Schema({
   email: { type: String, required: true, unique: [true, "email must be unique"] },
   password: { type: String, required: true },
+  reports: { type: Number, default: 0},
+  usersWhoReport: { type: [String]}
 });
 
 // On applique le validator au schéma avant d'en faire un modèle (méthode plugin)

@@ -8,7 +8,7 @@ const fs = require("fs");
 
 // Exportation d'une fonction pour ....
 //...Récupérer une seule sauce
-exports.getOneSauce = (req, res, next) => {
+exports.readOneSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
       sauce.imageUrl = `${req.protocol}://${req.get("host")}` + sauce.imageUrl;
@@ -18,7 +18,7 @@ exports.getOneSauce = (req, res, next) => {
 };
 
 //...Récupérer toutes les sauces
-exports.getAllSauces = (req, res, next) => {
+exports.readAllSauces = (req, res, next) => {
   Sauce.find()
     .then((sauces) => {
       sauces = sauces.map((sauce) => {
@@ -59,7 +59,7 @@ exports.createSauce = (req, res, next) => {
 };
 
 //...Modifier une sauce
-exports.modifySauce = (req, res, next) => {
+exports.updateSauce = (req, res, next) => {
   // 2 cas a prendre en compte :
   // CAS 1 : Si on ajoute une nouvelle image on aura un "req.file"
   // on récupère le chaine de caractère (toutes les infos sur la sauce), on la parse en objet, et on modifie l'image url (car nouvelle image)
@@ -109,3 +109,5 @@ exports.deleteSauce = (req, res, next) => {
     });
   });
 };
+
+exports.report = (req, res, next) => {};
