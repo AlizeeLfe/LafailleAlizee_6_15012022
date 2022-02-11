@@ -54,15 +54,15 @@ exports.createSauce = (req, res, next) => {
   });
   sauce
     .save()
-    .then(() => res.status(201).json({ message: "Sauce enregistrée !" }))
+    .then(() => res.status(201).json({ message: "Sauce created !" }))
     .catch((error) => res.status(400).json({ error }));
 };
 
 //...Modifier une sauce
 exports.updateSauce = (req, res, next) => {
   // 2 cas a prendre en compte :
-  // CAS 1 : Si on ajoute une nouvelle image on aura un "req.file"
-  // on récupère le chaine de caractère (toutes les infos sur la sauce), on la parse en objet, et on modifie l'image url (car nouvelle image)
+  // CAS 1 : Est-ce que req.file existe ? (Si on ajoute une nouvelle image on aura un "req.file")
+  // Si on trouve un fichier : on récupère la chaine de caractère (toutes les infos sur la sauce), on la parse en objet, et on modifie l'image url (car nouvelle image)
   // CAS 2 : Pas d'image à modifier, on fait une copie du corps de la requête "req.body"
   const sauceObject = req.file
     ? {
@@ -110,4 +110,20 @@ exports.deleteSauce = (req, res, next) => {
   });
 };
 
-exports.report = (req, res, next) => {};
+//...Signaler une sauce (RGPD)
+exports.report = (req, res, next) => {
+  Sauce.findOne({ _id: req.params.id }).then((sauce) => {
+    if (!sauce) {
+      res.status(404).json({
+        error: new Error("No such sauce"),
+      });
+    }
+    let reportSauce = {
+      $inc: { reports: 1 },
+      $push: { usersWhoReport: req.body.userId },
+    };
+    Sauce.updateOne({ _id: req.params.id }, reportSauce)
+      .then(() => res.status(201).json({ message: "Sauce reported" }))
+      .catch((error) => res.status(400).json({ error }));
+  });
+};

@@ -29,7 +29,7 @@ exports.signup = (req, res, next) => {
       user
         .save()
         // Renvoyer "201" pour création de ressource + message
-        .then(() => res.status(201).json({ message: "Utilisateur créé !" }))
+        .then(() => res.status(201).json({ message: "User created !" }))
         .catch((error) => res.status(400).json({ error }));
     })
     // On capte l'erreur : 500 = erreur serveur
@@ -48,7 +48,7 @@ exports.login = (req, res, next) => {
     .then((user) => {
       // Si le mail n'est pas bon, si on ne reçoit pas de user : renvoie une errer 401 = non autorisé
       if (!user) {
-        return res.status(401).json({ error: "Utilisateur non trouvé !" });
+        return res.status(401).json({ error: "User not found !" });
       }
       // Utilisation de la fonction "compare" (asynchrone) du package bcrypt
       // -> on compare le mdp qui est entré (string envoyé avec la requête), ET, le hash qui est enregistré dans la base de donnée
@@ -57,7 +57,7 @@ exports.login = (req, res, next) => {
         .then((valid) => {
           // Si la comparaison est pas ok (l'utilisateur a envoyé le mauvais mdp = si on reçoit booleen false)
           if (!valid) {
-            return res.status(401).json({ error: "Mot de passe incorrect !" });
+            return res.status(401).json({ error: "Incorrect password !" });
           }
           // Si mdp ok (true), on revoie une réponse 200 contenant l'ID utilisateur (base) et un token
           res.status(200).json({
@@ -84,6 +84,7 @@ exports.login = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
+// Lire ses données personnelles (RGPD)
 exports.read = (req, res, next) => {
   User.findOne({ _id: req.auth.userId })
     .then((user) => {
@@ -93,20 +94,81 @@ exports.read = (req, res, next) => {
     .catch((error) => res.status(404).json({ error }));
 };
 
+// Exporter ses données personnelles (RGPD)
 exports.export = (req, res, next) => {
   User.findOne({ _id: req.auth.userId })
     .then((user) => {
       user.usersWhoReport = undefined;
-      const data = user.toString()
-      res.attachment("data.txt")
-      res.type("txt")
+      const data = user.toString();
+      res.attachment("data.txt");
+      res.type("txt");
       res.status(200).json(data);
     })
     .catch((error) => res.status(404).json({ error }));
 };
 
-exports.update = (req, res, next) => {};
+// A VERIFIER //
+// Modifier son compte personnel (RGPD)
+exports.updateUser = (req, res, next) => {
+  // Chercher l'utilisateur
+  User.findOne({ _id: req.auth.userId }).then((user) => {
+    // s'il n'existe pas : erreur
+    if (!user) {
+      res.status(404).json({
+        error: new Error("User not found"),
+      });
+    }
+    // Vérifier qu'uniquement la personne à qui appartient le compte puisse le modifier
+    if (user._id !== req.auth.userId) {
+      res.status(401).json({
+        error: new Error("Unauthorized request!"),
+      });
+    }
+    // Modifier le compte
+    User.updateOne()
+    .then(() => res.status(200).json({ message: "User updated !" }))
+    .catch((error) => res.status(400).json({ error }));
+  });
+};
 
-exports.delete = (req, res, next) => {};
+// Supprimer son compte personnel (RGPD)
+exports.deleteUser = (req, res, next) => {
+  // Chercher l'utilisateur
+  User.findOne({ _id: req.auth.userId }).then((user) => {
+    // s'il n'existe pas : erreur
+    if (!user) {
+      res.status(404).json({
+        error: new Error("User not found"),
+      });
+    }
+    // Vérifier qu'uniquement la personne à qui appartient le compte puisse le supprimer
+    if (user._id !== req.auth.userId) {
+      res.status(401).json({
+        error: new Error("Unauthorized request!"),
+      });
+    }
+    // Supprimer le compte de la base de données
+    User.deleteOne({ _id: req.auth.userId })
+      .then(() => res.status(200).json({ message: "User deleted" }))
+      .catch((error) => res.status(400).json({ error }));
+  });
+};
 
-exports.report = (req, res, next) => {};
+// Signaler un utilisateur (RGPD)
+exports.report = (req, res, next) => {
+  User.findOne({ _id: req.auth.userId }).then((user) => {
+    if (!user) {
+      res.status(404).json({
+        error: new Error("User not found"),
+      });
+    }
+    let reportUser = {
+      $inc: { reports: 1 },
+      $push: { usersWhoReport: req.body.userId },
+    };
+
+    User.updateOne({ _id: req.params.id }, reportUser)
+      .then(() => res.status(201).json({ message: "User has been reported" }))
+      .catch((error) => res.status(400).json({ error }));
+  });
+};

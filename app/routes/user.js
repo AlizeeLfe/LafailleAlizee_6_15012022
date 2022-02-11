@@ -17,13 +17,14 @@ router.post('/login', userCtrl.login);
 // RGPD
 // Afficher les données personnelles dans l’interface utilisateur	
 router.get("/read", auth, userCtrl.read);
+// Exporter les données personnelles
 router.get("/export", auth, userCtrl.export);
-// Éditer des informations personnelles
-router.put("/", auth, userCtrl.update);
-// Signaler un user
+// Modifier des informations personnelles
+router.put("/", auth, userCtrl.updateUser);
+// Signaler un utilisateur
 router.post("/report", auth, userCtrl.report);
-// Droit à l’oubli : supprimer un compte user
-router.delete("/", auth, userCtrl.delete);
+// Supprimer un compte utilisateur
+router.delete("/", auth, userCtrl.deleteUser);
 
 
 
