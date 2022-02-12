@@ -102,12 +102,11 @@ exports.export = (req, res, next) => {
       const data = user.toString();
       res.attachment("data.txt");
       res.type("txt");
-      res.status(200).json(data);
+      return res.status(200).send(data);
     })
     .catch((error) => res.status(404).json({ error }));
 };
 
-// A VERIFIER //
 // Modifier son compte personnel (RGPD)
 exports.updateUser = async (req, res, next) => {
   let toChange = {};

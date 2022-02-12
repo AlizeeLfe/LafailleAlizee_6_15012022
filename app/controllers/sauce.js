@@ -77,7 +77,7 @@ exports.updateSauce = (req, res, next) => {
     { _id: req.params.id },
     { ...sauceObject, _id: req.params.id }
   )
-    .then(() => res.status(200).json({ message: "Sauce modified !" }))
+    .then(() => res.status(200).json({ message: "Sauce updated !" }))
     .catch((error) => res.status(400).json({ error }));
 };
 
@@ -112,17 +112,26 @@ exports.deleteSauce = (req, res, next) => {
 
 //...Signaler une sauce (RGPD)
 exports.report = (req, res, next) => {
-  Sauce.findOne({ _id: req.params.id }).then((sauce) => {
-    if (!sauce) {
-      res.status(404).json({
-        error: new Error("No such sauce"),
-      });
-    }
-    Sauce.updateOne({ _id: req.params.id }, {
-      $inc: { reports: 1 },
-      $push: { usersWhoReport: req.body.userId },
-    })
-      .then(() => res.status(201).json({ message: "Sauce reported" }))
+  if (req.body.sauceToReport) {
+    Sauce.findOneAndUpdate(
+      {
+        _id: req.body.sauceToReport,
+      },
+      {
+        $inc: { reports: 1 },
+        $push: { usersWhoReport: req.auth.userId },
+      }
+    )
+      .then((sauce) => {
+        if (!sauce) {
+          return res.status(404).json({
+            error: "Sauce not found",
+          });
+        }
+        res.status(200).json({ message: "Sauce reported !" });
+      })
       .catch((error) => res.status(400).json({ error }));
-  });
+  } else {
+    res.status(400).json({ message: "userId required" });
+  }
 };
