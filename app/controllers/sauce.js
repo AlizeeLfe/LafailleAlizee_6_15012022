@@ -118,11 +118,10 @@ exports.report = (req, res, next) => {
         error: new Error("No such sauce"),
       });
     }
-    let reportSauce = {
+    Sauce.updateOne({ _id: req.params.id }, {
       $inc: { reports: 1 },
       $push: { usersWhoReport: req.body.userId },
-    };
-    Sauce.updateOne({ _id: req.params.id }, reportSauce)
+    })
       .then(() => res.status(201).json({ message: "Sauce reported" }))
       .catch((error) => res.status(400).json({ error }));
   });

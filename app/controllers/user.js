@@ -109,66 +109,75 @@ exports.export = (req, res, next) => {
 
 // A VERIFIER //
 // Modifier son compte personnel (RGPD)
-exports.updateUser = (req, res, next) => {
-  // Chercher l'utilisateur
-  User.findOne({ _id: req.auth.userId }).then((user) => {
-    // s'il n'existe pas : erreur
-    if (!user) {
-      res.status(404).json({
-        error: new Error("User not found"),
-      });
-    }
-    // Vérifier qu'uniquement la personne à qui appartient le compte puisse le modifier
-    if (user._id !== req.auth.userId) {
-      res.status(401).json({
-        error: new Error("Unauthorized request!"),
-      });
-    }
-    // Modifier le compte
-    User.updateOne()
-    .then(() => res.status(200).json({ message: "User updated !" }))
+exports.updateUser = async (req, res, next) => {
+  let toChange = {};
+
+  if (req.body.password) {
+    const passwordHash = await bcrypt.hash(req.body.password, 10);
+    toChange.password = passwordHash;
+  }
+
+  if (req.body.email) {
+    toChange.email = req.body.email;
+  }
+
+  User.findOneAndUpdate(
+    {
+      _id: req.auth.userId,
+    },
+    toChange,
+    { returnOriginal: true, updatedExisting: true }
+  )
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({
+          error: "User not found",
+        });
+      }
+      res.status(200).json({ message: "User updated !" });
+    })
     .catch((error) => res.status(400).json({ error }));
-  });
 };
 
 // Supprimer son compte personnel (RGPD)
 exports.deleteUser = (req, res, next) => {
-  // Chercher l'utilisateur
-  User.findOne({ _id: req.auth.userId }).then((user) => {
-    // s'il n'existe pas : erreur
-    if (!user) {
-      res.status(404).json({
-        error: new Error("User not found"),
-      });
-    }
-    // Vérifier qu'uniquement la personne à qui appartient le compte puisse le supprimer
-    if (user._id !== req.auth.userId) {
-      res.status(401).json({
-        error: new Error("Unauthorized request!"),
-      });
-    }
-    // Supprimer le compte de la base de données
-    User.deleteOne({ _id: req.auth.userId })
-      .then(() => res.status(200).json({ message: "User deleted" }))
-      .catch((error) => res.status(400).json({ error }));
-  });
+  User.findOneAndDelete({
+    _id: req.auth.userId,
+  })
+    // Si user existe plus
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({
+          error: "User not found",
+        });
+      }
+      res.status(200).json({ message: "User deleted !" });
+    })
+    .catch((error) => res.status(400).json({ error }));
 };
 
 // Signaler un utilisateur (RGPD)
 exports.report = (req, res, next) => {
-  User.findOne({ _id: req.auth.userId }).then((user) => {
-    if (!user) {
-      res.status(404).json({
-        error: new Error("User not found"),
-      });
-    }
-    let reportUser = {
-      $inc: { reports: 1 },
-      $push: { usersWhoReport: req.body.userId },
-    };
-
-    User.updateOne({ _id: req.params.id }, reportUser)
-      .then(() => res.status(201).json({ message: "User has been reported" }))
+  if (req.body.userToReport) {
+    User.findOneAndUpdate(
+      {
+        _id: req.body.userToReport,
+      },
+      {
+        $inc: { reports: 1 },
+        $push: { usersWhoReport: req.auth.userId },
+      }
+    )
+      .then((user) => {
+        if (!user) {
+          return res.status(404).json({
+            error: "User not found",
+          });
+        }
+        res.status(200).json({ message: "User reported !" });
+      })
       .catch((error) => res.status(400).json({ error }));
-  });
+  } else {
+    res.status(400).json({ message: "userId required" });
+  }
 };
