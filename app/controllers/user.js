@@ -125,7 +125,6 @@ exports.updateUser = async (req, res, next) => {
       _id: req.auth.userId,
     },
     toChange,
-    { returnOriginal: true, updatedExisting: true }
   )
     .then((user) => {
       if (!user) {

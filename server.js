@@ -3,6 +3,8 @@ const cors = require("cors");
 // Accéder au path de notre serveur (pour pouvoir avoir accès au chemin de notre système de fichier)
 const path = require('path');
 const routes = require("./app/routes");
+// OWASP
+const https = require("https");
 
 
 // Init .env config
@@ -46,3 +48,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
+// OWASP
+https.createServer(function (req, res) {
+}).listen(8080);
