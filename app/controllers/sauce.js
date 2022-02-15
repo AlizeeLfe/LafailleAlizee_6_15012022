@@ -8,7 +8,7 @@ const fs = require("fs");
 
 // Exportation d'une fonction pour ....
 //...Récupérer une seule sauce
-exports.getOneSauce = (req, res, next) => {
+exports.readOneSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
       sauce.imageUrl = `${req.protocol}://${req.get("host")}` + sauce.imageUrl;
@@ -18,7 +18,7 @@ exports.getOneSauce = (req, res, next) => {
 };
 
 //...Récupérer toutes les sauces
-exports.getAllSauces = (req, res, next) => {
+exports.readAllSauces = (req, res, next) => {
   Sauce.find()
     .then((sauces) => {
       sauces = sauces.map((sauce) => {
@@ -54,15 +54,15 @@ exports.createSauce = (req, res, next) => {
   });
   sauce
     .save()
-    .then(() => res.status(201).json({ message: "Sauce enregistrée !" }))
+    .then(() => res.status(201).json({ message: "Sauce created !" }))
     .catch((error) => res.status(400).json({ error }));
 };
 
 //...Modifier une sauce
-exports.modifySauce = (req, res, next) => {
+exports.updateSauce = (req, res, next) => {
   // 2 cas a prendre en compte :
-  // CAS 1 : Si on ajoute une nouvelle image on aura un "req.file"
-  // on récupère le chaine de caractère (toutes les infos sur la sauce), on la parse en objet, et on modifie l'image url (car nouvelle image)
+  // CAS 1 : Est-ce que req.file existe ? (Si on ajoute une nouvelle image on aura un "req.file")
+  // Si on trouve un fichier : on récupère la chaine de caractère (toutes les infos sur la sauce), on la parse en objet, et on modifie l'image url (car nouvelle image)
   // CAS 2 : Pas d'image à modifier, on fait une copie du corps de la requête "req.body"
   const sauceObject = req.file
     ? {
@@ -77,7 +77,7 @@ exports.modifySauce = (req, res, next) => {
     { _id: req.params.id },
     { ...sauceObject, _id: req.params.id }
   )
-    .then(() => res.status(200).json({ message: "Sauce modified !" }))
+    .then(() => res.status(200).json({ message: "Sauce updated !" }))
     .catch((error) => res.status(400).json({ error }));
 };
 
@@ -108,4 +108,30 @@ exports.deleteSauce = (req, res, next) => {
         .catch((error) => res.status(400).json({ error }));
     });
   });
+};
+
+//...Signaler une sauce (RGPD)
+exports.report = (req, res, next) => {
+  if (req.body.sauceToReport) {
+    Sauce.findOneAndUpdate(
+      {
+        _id: req.body.sauceToReport,
+      },
+      {
+        $inc: { reports: 1 },
+        $push: { usersWhoReport: req.auth.userId },
+      }
+    )
+      .then((sauce) => {
+        if (!sauce) {
+          return res.status(404).json({
+            error: "Sauce not found",
+          });
+        }
+        res.status(200).json({ message: "Sauce reported !" });
+      })
+      .catch((error) => res.status(400).json({ error }));
+  } else {
+    res.status(400).json({ message: "userId required" });
+  }
 };
